@@ -4,12 +4,12 @@ provider "aws" {
 
 locals {
   region = "us-east-1"
-  name   = "<TODO>-ex-${replace(basename(path.cwd), "_", "-")}"
+  name   = "eks-addons-ex-${replace(basename(path.cwd), "_", "-")}"
 
   tags = {
     Name       = local.name
     Example    = local.name
-    Repository = "https://github.com/clowdhaus/terraform-aws-<TODO>"
+    Repository = "https://github.com/clowdhaus/terraform-aws-eks-addons"
   }
 }
 
@@ -38,16 +38,16 @@ module "vpc" {
 }
 
 ################################################################################
-# <TODO_EXPANDED> Module
+# Eks Addons Module
 ################################################################################
 
-module "<TODO_UNDER>_disabled" {
+module "eks_addons_disabled" {
   source = "../.."
 
   create = false
 }
 
-module "<TODO_UNDER>" {
+module "eks_addons" {
   source = "../.."
 
   create = false

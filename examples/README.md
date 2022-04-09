@@ -1,3 +1,3 @@
-# Terraform AWS <TODO_EXPANDED> Examples
+# Terraform AWS Eks Addons Examples
 
-- [Complete](https://github.com/clowdhaus/terraform-aws-<TODO>/tree/main/examples/complete)
+- [Complete](https://github.com/clowdhaus/terraform-aws-eks-addons/tree/main/examples/complete)
