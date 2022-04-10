@@ -4,7 +4,7 @@ variable "create" {
   default     = true
 }
 
-variable "node_group_security_group_id" {
+variable "node_security_group_id" {
   description = "The node group security group ID. Used to provided addtional security group rules when required by addon enabled"
   type        = string
   default     = null

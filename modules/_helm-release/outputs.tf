@@ -18,11 +18,6 @@ output "revision" {
   value       = try(helm_release.this[0].metadata[0].revision, null)
 }
 
-# output "status" {
-#   description = "Status of the release"
-#   value       = try(helm_release.this[0].metadata[0].status, null)
-# }
-
 output "version" {
   description = "A SemVer 2 conformant version string of the chart"
   value       = try(helm_release.this[0].metadata[0].version, null)
@@ -35,5 +30,5 @@ output "app_version" {
 
 output "values" {
   description = "The compounded values from `values` and `set*` attributes"
-  value       = try(helm_release.this[0].metadata[0].values, null)
+  value       = try(helm_release.this[0].metadata[0].values, [])
 }

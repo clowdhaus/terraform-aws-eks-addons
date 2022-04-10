@@ -31,6 +31,7 @@ No providers.
 |------|--------|---------|
 | <a name="module_eks_addons"></a> [eks\_addons](#module\_eks\_addons) | ../.. | n/a |
 | <a name="module_eks_addons_disabled"></a> [eks\_addons\_disabled](#module\_eks\_addons\_disabled) | ../.. | n/a |
+| <a name="module_eks_blueprint"></a> [eks\_blueprint](#module\_eks\_blueprint) | github.com/clowdhaus/terraform-aws-eks-blueprint | n/a |
 | <a name="module_vpc"></a> [vpc](#module\_vpc) | terraform-aws-modules/vpc/aws | ~> 3.0 |
 
 ## Resources
@@ -43,7 +44,9 @@ No inputs.
 
 ## Outputs
 
-No outputs.
+| Name | Description |
+|------|-------------|
+| <a name="output_agones_helm_release"></a> [agones\_helm\_release](#output\_agones\_helm\_release) | Agones helm chart release attributes |
 <!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 
 Apache-2.0 Licensed. See [LICENSE](https://github.com/clowdhaus/terraform-aws-eks-blueprint/blob/main/LICENSE).

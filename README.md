@@ -53,11 +53,13 @@ See [`eks-blueprint-examples`](https://github.com/clowdhaus/eks-blueprint-exampl
 | <a name="input_agones_config"></a> [agones\_config](#input\_agones\_config) | Agones wrapper variable around Helm release configuration values | `any` | `{}` | no |
 | <a name="input_create"></a> [create](#input\_create) | Controls if resources should be created (affects all resources) | `bool` | `true` | no |
 | <a name="input_enable_agones"></a> [enable\_agones](#input\_enable\_agones) | Controls if Agones addon should be created | `bool` | `false` | no |
-| <a name="input_node_group_security_group_id"></a> [node\_group\_security\_group\_id](#input\_node\_group\_security\_group\_id) | The node group security group ID. Used to provided addtional security group rules when required by addon enabled | `string` | `null` | no |
+| <a name="input_node_security_group_id"></a> [node\_security\_group\_id](#input\_node\_security\_group\_id) | The node group security group ID. Used to provided addtional security group rules when required by addon enabled | `string` | `null` | no |
 
 ## Outputs
 
-No outputs.
+| Name | Description |
+|------|-------------|
+| <a name="output_agones_helm_release"></a> [agones\_helm\_release](#output\_agones\_helm\_release) | Agones helm chart release attributes |
 <!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 
 ## License

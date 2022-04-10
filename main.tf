@@ -26,9 +26,5 @@ resource "aws_security_group_rule" "agones_sg_ingress_rule" {
   protocol          = "udp"
   cidr_blocks       = ["0.0.0.0/0"] # TODO
   ipv6_cidr_blocks  = ["::/0"]      # TODO
-  security_group_id = var.node_group_security_group_id
+  security_group_id = var.node_security_group_id
 }
-
-################################################################################
-# Agones
-################################################################################
