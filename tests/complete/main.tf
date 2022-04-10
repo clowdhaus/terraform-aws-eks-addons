@@ -4,7 +4,7 @@ provider "aws" {
 
 locals {
   region = "us-east-1"
-  name   = "eks-addons-ex-${replace(basename(path.cwd), "_", "-")}"
+  name   = "eks-addons-test-${replace(basename(path.cwd), "_", "-")}"
 
   tags = {
     Name       = local.name
@@ -13,7 +13,23 @@ locals {
   }
 }
 
-data "aws_caller_identity" "current" {}
+################################################################################
+# EKS Addons Module
+################################################################################
+
+module "eks_addons_disabled" {
+  source = "../.."
+
+  create = false
+}
+
+module "eks_addons" {
+  source = "../.."
+
+  create = false
+
+  tags = local.tags
+}
 
 ################################################################################
 # Supporting Resources
@@ -33,24 +49,6 @@ module "vpc" {
   enable_nat_gateway      = false
   single_nat_gateway      = true
   map_public_ip_on_launch = false
-
-  tags = local.tags
-}
-
-################################################################################
-# Eks Addons Module
-################################################################################
-
-module "eks_addons_disabled" {
-  source = "../.."
-
-  create = false
-}
-
-module "eks_addons" {
-  source = "../.."
-
-  create = false
 
   tags = local.tags
 }

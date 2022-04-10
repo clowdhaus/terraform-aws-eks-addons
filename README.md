@@ -1,4 +1,4 @@
-# AWS Eks Addons Terraform module
+# AWS EKS Addons Terraform module
 
 Terraform module which creates AWS Eks Addons resources.
 
@@ -29,7 +29,8 @@ Examples codified under the [`examples`](https://github.com/clowdhaus/terraform-
 | Name | Version |
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 0.13.1 |
-| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 3.30 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 3.72 |
+| <a name="requirement_helm"></a> [helm](#requirement\_helm) | >= 2.5 |
 
 ## Providers
 
