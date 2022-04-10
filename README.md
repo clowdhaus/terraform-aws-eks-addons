@@ -30,19 +30,30 @@ See [`eks-blueprint-examples`](https://github.com/clowdhaus/eks-blueprint-exampl
 
 ## Providers
 
-No providers.
+| Name | Version |
+|------|---------|
+| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 3.72 |
 
 ## Modules
 
-No modules.
+| Name | Source | Version |
+|------|--------|---------|
+| <a name="module_agones"></a> [agones](#module\_agones) | ./modules/_helm-release | n/a |
 
 ## Resources
 
-No resources.
+| Name | Type |
+|------|------|
+| [aws_security_group_rule.agones_sg_ingress_rule](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/security_group_rule) | resource |
 
 ## Inputs
 
-No inputs.
+| Name | Description | Type | Default | Required |
+|------|-------------|------|---------|:--------:|
+| <a name="input_agones_config"></a> [agones\_config](#input\_agones\_config) | Agones wrapper variable around Helm release configuration values | `any` | `{}` | no |
+| <a name="input_create"></a> [create](#input\_create) | Controls if resources should be created (affects all resources) | `bool` | `true` | no |
+| <a name="input_enable_agones"></a> [enable\_agones](#input\_enable\_agones) | Controls if Agones addon should be created | `bool` | `false` | no |
+| <a name="input_node_group_security_group_id"></a> [node\_group\_security\_group\_id](#input\_node\_group\_security\_group\_id) | The node group security group ID. Used to provided addtional security group rules when required by addon enabled | `string` | `null` | no |
 
 ## Outputs
 
