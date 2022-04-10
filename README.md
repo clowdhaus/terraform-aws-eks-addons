@@ -1,10 +1,8 @@
 # AWS EKS Addons Terraform module
 
-Terraform module which creates AWS Eks Addons resources.
+Terraform module which creates AWS EKS Addon resources.
 
 ## Usage
-
-See [`examples`](https://github.com/clowdhaus/terraform-aws-eks-addons/tree/main/examples) directory for working examples to reference:
 
 ```hcl
 module "eks_addons" {
@@ -19,9 +17,7 @@ module "eks_addons" {
 
 ## Examples
 
-Examples codified under the [`examples`](https://github.com/clowdhaus/terraform-aws-eks-addons/tree/main/examples) are intended to give users references for how to use the module(s) as well as testing/validating changes to the source code of the module. If contributing to the project, please be sure to make any appropriate updates to the relevant examples to allow maintainers to test your changes and to keep the examples up to date for users. Thank you!
-
-- [Complete](https://github.com/clowdhaus/terraform-aws-eks-addons/tree/main/examples/complete)
+See [`eks-blueprint-examples`](https://github.com/clowdhaus/eks-blueprint-examples/tree/main/examples) for working examples to reference.
 
 <!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 ## Requirements
