@@ -5,6 +5,10 @@
 module "agones" {
   source = "./modules/_helm-release"
 
+  # TODO - this addon creates a lot of networking resources which could cause lifecycle conflicts.
+  # 1. Should it be supported here or as a 3rd party addon thats external
+  # 2. If supported here, do we need to depend on VPC to ensure correct ordering?
+
   create = var.create && var.enable_agones
 
   config = {

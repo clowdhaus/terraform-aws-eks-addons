@@ -54,7 +54,8 @@ module "eks_addons" {
 
   node_security_group_id = module.eks_blueprint.node_security_group_id
 
-  enable_agones = true
+  enable_agones = false # 1.22 support issue https://github.com/googleforgames/agones/issues/2494
+
 }
 
 ################################################################################
