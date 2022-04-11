@@ -1,3 +1,7 @@
+locals {
+  create_namespace = try(var.config.create_namespace, true)
+}
+
 ################################################################################
 # Helm Release
 ################################################################################
@@ -6,8 +10,8 @@ resource "helm_release" "this" {
   count = var.create ? 1 : 0
 
   name             = var.config.name
-  namespace        = var.config.namespace
-  create_namespace = try(var.config.create_namespace, true)
+  namespace        = local.create_namespace ? kubernetes_namespace_v1.this[0].metadata[0].name : try(var.config.namespace, null)
+  create_namespace = false # creating below with K8s namespace resource
   description      = try(var.config.description, null)
   chart            = var.config.chart
   version          = try(var.config.version, null)
@@ -66,5 +70,15 @@ resource "helm_release" "this" {
       value = set_sensitive.value.value
       type  = try(set_sensitive.value.type, null)
     }
+  }
+}
+
+resource "kubernetes_namespace_v1" "this" {
+  count = var.create && local.create_namespace ? 1 : 0
+
+  metadata {
+    name        = var.config.namespace
+    labels      = try(var.config.labels, null)
+    annotations = try(var.config.annotations, null)
   }
 }

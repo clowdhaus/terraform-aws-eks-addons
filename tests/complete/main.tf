@@ -16,6 +16,18 @@ provider "helm" {
   }
 }
 
+provider "kubernetes" {
+  host                   = module.eks_blueprint.cluster_endpoint
+  cluster_ca_certificate = base64decode(module.eks_blueprint.cluster_certificate_authority_data)
+
+  exec {
+    api_version = "client.authentication.k8s.io/v1alpha1"
+    command     = "aws"
+    # This requires the awscli to be installed locally where Terraform is executed
+    args = ["eks", "get-token", "--cluster-name", module.eks_blueprint.cluster_id]
+  }
+}
+
 locals {
   region = "us-east-1"
   name   = "eks-addons-test-${replace(basename(path.cwd), "_", "-")}"
@@ -51,7 +63,7 @@ module "eks_addons" {
 
 module "eks_blueprint" {
   # tflint-ignore: terraform_module_pinned_source
-  source = "github.com/clowdhaus/terraform-aws-eks-blueprint"
+  source = "git@github.com:clowdhaus/terraform-aws-eks-blueprint.git"
 
   name = local.name
 

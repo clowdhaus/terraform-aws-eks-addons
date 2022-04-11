@@ -20,6 +20,7 @@ Note that this example may create resources which will incur monetary charges on
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 0.13.1 |
 | <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 3.72 |
 | <a name="requirement_helm"></a> [helm](#requirement\_helm) | >= 2.5 |
+| <a name="requirement_kubernetes"></a> [kubernetes](#requirement\_kubernetes) | >= 2.10 |
 
 ## Providers
 
@@ -31,7 +32,7 @@ No providers.
 |------|--------|---------|
 | <a name="module_eks_addons"></a> [eks\_addons](#module\_eks\_addons) | ../.. | n/a |
 | <a name="module_eks_addons_disabled"></a> [eks\_addons\_disabled](#module\_eks\_addons\_disabled) | ../.. | n/a |
-| <a name="module_eks_blueprint"></a> [eks\_blueprint](#module\_eks\_blueprint) | github.com/clowdhaus/terraform-aws-eks-blueprint | n/a |
+| <a name="module_eks_blueprint"></a> [eks\_blueprint](#module\_eks\_blueprint) | git@github.com:clowdhaus/terraform-aws-eks-blueprint.git | n/a |
 | <a name="module_vpc"></a> [vpc](#module\_vpc) | terraform-aws-modules/vpc/aws | ~> 3.0 |
 
 ## Resources
