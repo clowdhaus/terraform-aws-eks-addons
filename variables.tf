@@ -4,11 +4,11 @@ variable "create" {
   default     = true
 }
 
-variable "node_security_group_id" {
-  description = "The node group security group ID. Used to provided addtional security group rules when required by addon enabled"
-  type        = string
-  default     = null
-}
+# variable "node_security_group_id" {
+#   description = "The node group security group ID. Used to provided addtional security group rules when required by addon enabled"
+#   type        = string
+#   default     = null
+# }
 
 variable "cluster_id" {
   description = "The EKS cluster ID"
@@ -38,7 +38,7 @@ variable "enable_agones" {
   default     = false
 }
 
-variable "agones_config" {
+variable "agones" {
   description = "Agones wrapper variable around Helm release configuration values"
   type        = any
   default     = {}
@@ -54,7 +54,7 @@ variable "enable_karpenter" {
   default     = false
 }
 
-variable "karpenter_config" {
+variable "karpenter" {
   description = "Karpenter wrapper variable around Helm release configuration values"
   type        = any
   default     = {}

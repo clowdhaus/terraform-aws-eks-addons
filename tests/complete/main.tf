@@ -69,14 +69,13 @@ module "eks_addons" {
   cluster_id                = module.eks.cluster_id
   cluster_endpoint          = module.eks.cluster_endpoint
   cluster_oidc_provider_arn = module.eks.oidc_provider_arn
-  node_security_group_id    = module.eks.node_security_group_id
 
   # Agones
   enable_agones = false # 1.22 support issue https://github.com/googleforgames/agones/issues/2494
 
   # Karpenter
   enable_karpenter = true
-  karpenter_config = {
+  karpenter = {
     node_iam_role_arns = [module.eks.eks_managed_node_groups["bottlerocket"].iam_role_arn]
     node_iam_role_name = module.eks.eks_managed_node_groups["bottlerocket"].iam_role_name
   }

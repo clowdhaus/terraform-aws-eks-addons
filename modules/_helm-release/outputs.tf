@@ -12,6 +12,11 @@ output "name" {
   value       = try(helm_release.this[0].metadata[0].name, null)
 }
 
+output "namespace" {
+  description = "Name of Kubernetes namespace"
+  value       = try(helm_release.this[0].metadata[0].namespace, null)
+}
+
 output "revision" {
   description = "Version is an int32 which represents the version of the release"
   value       = try(helm_release.this[0].metadata[0].revision, null)
@@ -30,22 +35,4 @@ output "app_version" {
 output "values" {
   description = "The compounded values from `values` and `set*` attributes"
   value       = try(helm_release.this[0].metadata[0].values, [])
-}
-
-################################################################################
-# Namespace
-################################################################################
-
-output "namespace" {
-  description = "Kubernetes namespace"
-  value       = local.namespace
-}
-
-################################################################################
-# Service Account
-################################################################################
-
-output "service_account" {
-  description = "Kubernetes service account"
-  value       = local.service_account
 }
