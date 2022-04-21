@@ -1,5 +1,9 @@
 locals {
-  create_namespace = try(var.config.create_namespace, true)
+  create_namespace = var.create && try(var.config.create_namespace, true)
+  namespace        = local.create_namespace ? kubernetes_namespace_v1.this[0].metadata[0].name : try(var.config.namespace.name, null)
+
+  create_service_account = var.create && try(var.config.create_service_account, false)
+  service_account        = local.create_service_account ? kubernetes_service_account_v1.this[0].metadata[0].name : try(var.config.service_account.name, null)
 }
 
 ################################################################################
@@ -10,7 +14,7 @@ resource "helm_release" "this" {
   count = var.create ? 1 : 0
 
   name             = var.config.name
-  namespace        = local.create_namespace ? kubernetes_namespace_v1.this[0].metadata[0].name : try(var.config.namespace, null)
+  namespace        = local.namespace
   create_namespace = false # creating below with K8s namespace resource
   description      = try(var.config.description, null)
   chart            = var.config.chart
@@ -53,7 +57,7 @@ resource "helm_release" "this" {
   }
 
   dynamic "set" {
-    for_each = try(var.config.set, {})
+    for_each = try(var.config.set, [])
 
     content {
       name  = set.value.name
@@ -73,12 +77,53 @@ resource "helm_release" "this" {
   }
 }
 
+################################################################################
+# Namespace
+################################################################################
+
 resource "kubernetes_namespace_v1" "this" {
   count = var.create && local.create_namespace ? 1 : 0
 
   metadata {
-    name        = var.config.namespace
-    labels      = try(var.config.labels, null)
-    annotations = try(var.config.annotations, null)
+    name        = var.config.namespace.name
+    labels      = try(var.config.namespace.labels, null)
+    annotations = try(var.config.namespace.annotations, null)
+  }
+
+  timeouts {
+    delete = try(var.config.namespace.timeouts.delete, null)
+  }
+}
+
+################################################################################
+# Service Account
+################################################################################
+
+resource "kubernetes_service_account_v1" "this" {
+  count = var.create && local.create_service_account ? 1 : 0
+
+  automount_service_account_token = try(var.config.automount_service_account_token, false)
+
+  metadata {
+    name        = var.config.service_account.name
+    namespace   = local.namespace
+    annotations = try(var.config.service_account.annotations, null)
+    labels      = try(var.config.service_account.labels, null)
+  }
+
+  dynamic "image_pull_secret" {
+    for_each = try(var.config.service_account.image_pull_secret, [])
+
+    content {
+      name = try(image_pull_secret.value.name, null)
+    }
+  }
+
+  dynamic "secret" {
+    for_each = try(var.config.service_account.secret, [])
+
+    content {
+      name = try(secret.value.name, null)
+    }
   }
 }

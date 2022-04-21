@@ -1,3 +1,7 @@
+################################################################################
+# Helm Release
+################################################################################
+
 output "chart" {
   description = "The name of the chart"
   value       = try(helm_release.this[0].metadata[0].chart, null)
@@ -6,11 +10,6 @@ output "chart" {
 output "name" {
   description = "Name is the name of the release"
   value       = try(helm_release.this[0].metadata[0].name, null)
-}
-
-output "namespace" {
-  description = "Namespace is the kubernetes namespace of the release"
-  value       = try(helm_release.this[0].metadata[0].namespace, null)
 }
 
 output "revision" {
@@ -31,4 +30,22 @@ output "app_version" {
 output "values" {
   description = "The compounded values from `values` and `set*` attributes"
   value       = try(helm_release.this[0].metadata[0].values, [])
+}
+
+################################################################################
+# Namespace
+################################################################################
+
+output "namespace" {
+  description = "Kubernetes namespace"
+  value       = local.namespace
+}
+
+################################################################################
+# Service Account
+################################################################################
+
+output "service_account" {
+  description = "Kubernetes service account"
+  value       = local.service_account
 }

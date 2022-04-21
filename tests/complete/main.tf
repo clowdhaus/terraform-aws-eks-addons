@@ -4,27 +4,41 @@ provider "aws" {
 
 provider "helm" {
   kubernetes {
-    host                   = module.eks_blueprint.cluster_endpoint
-    cluster_ca_certificate = base64decode(module.eks_blueprint.cluster_certificate_authority_data)
+    host                   = module.eks.cluster_endpoint
+    cluster_ca_certificate = base64decode(module.eks.cluster_certificate_authority_data)
 
     exec {
       api_version = "client.authentication.k8s.io/v1alpha1"
       command     = "aws"
       # This requires the awscli to be installed locally where Terraform is executed
-      args = ["eks", "get-token", "--cluster-name", module.eks_blueprint.cluster_id]
+      args = ["eks", "get-token", "--cluster-name", module.eks.cluster_id]
     }
   }
 }
 
 provider "kubernetes" {
-  host                   = module.eks_blueprint.cluster_endpoint
-  cluster_ca_certificate = base64decode(module.eks_blueprint.cluster_certificate_authority_data)
+  host                   = module.eks.cluster_endpoint
+  cluster_ca_certificate = base64decode(module.eks.cluster_certificate_authority_data)
 
   exec {
     api_version = "client.authentication.k8s.io/v1alpha1"
     command     = "aws"
     # This requires the awscli to be installed locally where Terraform is executed
-    args = ["eks", "get-token", "--cluster-name", module.eks_blueprint.cluster_id]
+    args = ["eks", "get-token", "--cluster-name", module.eks.cluster_id]
+  }
+}
+
+provider "kubectl" {
+  apply_retry_count      = 5
+  host                   = module.eks.cluster_endpoint
+  cluster_ca_certificate = base64decode(module.eks.cluster_certificate_authority_data)
+  load_config_file       = false
+
+  exec {
+    api_version = "client.authentication.k8s.io/v1alpha1"
+    command     = "aws"
+    # This requires the awscli to be installed locally where Terraform is executed
+    args = ["eks", "get-token", "--cluster-name", module.eks.cluster_id]
   }
 }
 
@@ -52,27 +66,48 @@ module "eks_addons_disabled" {
 module "eks_addons" {
   source = "../.."
 
-  node_security_group_id = module.eks_blueprint.node_security_group_id
+  cluster_id                = module.eks.cluster_id
+  cluster_endpoint          = module.eks.cluster_endpoint
+  cluster_oidc_provider_arn = module.eks.oidc_provider_arn
+  node_security_group_id    = module.eks.node_security_group_id
 
+  # Agones
   enable_agones = false # 1.22 support issue https://github.com/googleforgames/agones/issues/2494
 
+  # Karpenter
+  enable_karpenter = true
+  karpenter_config = {
+    node_iam_role_arns = [module.eks.eks_managed_node_groups["bottlerocket"].iam_role_arn]
+    node_iam_role_name = module.eks.eks_managed_node_groups["bottlerocket"].iam_role_name
+  }
 }
 
 ################################################################################
 # Supporting Resources
 ################################################################################
 
-module "eks_blueprint" {
-  # tflint-ignore: terraform_module_pinned_source
-  source = "git@github.com:clowdhaus/terraform-aws-eks-blueprint.git"
+module "eks" {
+  source  = "terraform-aws-modules/eks/aws"
+  version = "~> 18.0"
 
-  name = local.name
-
-  cluster_version                 = "1.22"
+  cluster_name                    = local.name
+  cluster_version                 = "1.21"
   cluster_endpoint_private_access = true
 
   vpc_id     = module.vpc.vpc_id
   subnet_ids = module.vpc.private_subnets
+
+  node_security_group_additional_rules = {
+    # Control plane invoke Karpenter webhook
+    ingress_karpenter_webhook_tcp = {
+      description                   = "Control plane invoke Karpenter webhook"
+      protocol                      = "tcp"
+      from_port                     = 8443
+      to_port                       = 8443
+      type                          = "ingress"
+      source_cluster_security_group = true
+    }
+  }
 
   eks_managed_node_group_defaults = {
     instance_types        = ["m6i.large", "m5.large", "m5n.large", "m5zn.large"]
@@ -92,20 +127,19 @@ module "eks_blueprint" {
         max_unavailable_percentage = 75
       }
 
-      metadata_options = {
-        http_endpoint               = "enabled"
-        http_tokens                 = "required"
-        http_put_response_hop_limit = 2
-        instance_metadata_tags      = "enabled"
-      }
+      iam_role_additional_policies = [
+        # Required by Karpenter
+        "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
+      ]
     }
   }
 
-  # Disable managed service for Prometheus and Grafana for now
-  create_prometheus = false
-  create_grafana    = false
-
-  tags = local.tags
+  tags = merge(local.tags, {
+    # NOTE - if creating multiple security groups with this module, only tag the
+    # security group that Karpenter should utilize with the following tag
+    # (i.e. - at most, only one security group should have this tag in your account)
+    "karpenter.sh/discovery" = local.name
+  })
 }
 
 module "vpc" {
@@ -121,7 +155,91 @@ module "vpc" {
 
   enable_nat_gateway      = true
   single_nat_gateway      = true
+  enable_dns_hostnames    = true
   map_public_ip_on_launch = false
 
+  public_subnet_tags = {
+    "kubernetes.io/cluster/${local.name}" = "shared"
+    "kubernetes.io/role/elb"              = 1
+  }
+
+  private_subnet_tags = {
+    "kubernetes.io/cluster/${local.name}" = "shared"
+    "kubernetes.io/role/internal-elb"     = 1
+    # Tags subnets for Karpenter auto-discovery
+    "karpenter.sh/discovery" = local.name
+  }
+
   tags = local.tags
+}
+
+
+################################################################################
+# Karpenter Provisioner test
+
+# 1) Scale up
+# kubectl scale deployment inflate --replicas 5
+# kubectl logs -f -n karpenter -l app.kubernetes.io/name=karpenter -c controller
+
+# 2) Scale down
+# kubectl delete deployment inflate
+################################################################################
+
+resource "kubectl_manifest" "karpenter_provisioner" {
+  yaml_body = <<-YAML
+  apiVersion: karpenter.sh/v1alpha5
+  kind: Provisioner
+  metadata:
+    name: default
+  spec:
+    requirements:
+      - key: karpenter.sh/capacity-type
+        operator: In
+        values: ["spot"]
+    limits:
+      resources:
+        cpu: 1000
+    provider:
+      subnetSelector:
+        karpenter.sh/discovery: ${local.name}
+      securityGroupSelector:
+        karpenter.sh/discovery: ${local.name}
+      tags:
+        karpenter.sh/discovery: ${local.name}
+    ttlSecondsAfterEmpty: 30
+  YAML
+
+  depends_on = [
+    module.eks_addons
+  ]
+}
+
+resource "kubectl_manifest" "karpenter_example_deployment" {
+  yaml_body = <<-YAML
+  apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    name: inflate
+  spec:
+    replicas: 0
+    selector:
+      matchLabels:
+        app: inflate
+    template:
+      metadata:
+        labels:
+          app: inflate
+      spec:
+        terminationGracePeriodSeconds: 0
+        containers:
+          - name: inflate
+            image: public.ecr.aws/eks-distro/kubernetes/pause:3.2
+            resources:
+              requests:
+                cpu: 1
+  YAML
+
+  depends_on = [
+    module.eks_addons
+  ]
 }

@@ -10,18 +10,52 @@ variable "node_security_group_id" {
   default     = null
 }
 
+variable "cluster_id" {
+  description = "The EKS cluster ID"
+  type        = string
+  default     = ""
+}
+
+variable "cluster_endpoint" {
+  description = "The EKS cluster endpoint"
+  type        = string
+  default     = ""
+}
+
+variable "cluster_oidc_provider_arn" {
+  description = "The OIDC provider ARN"
+  type        = string
+  default     = ""
+}
+
 ################################################################################
 # Agones
 ################################################################################
 
 variable "enable_agones" {
-  description = "Controls if Agones addon should be created"
+  description = "Controls if Agones addon is be created"
   type        = bool
   default     = false
 }
 
 variable "agones_config" {
   description = "Agones wrapper variable around Helm release configuration values"
+  type        = any
+  default     = {}
+}
+
+################################################################################
+# Agones
+################################################################################
+
+variable "enable_karpenter" {
+  description = "Controls if Karpenter addon is be created"
+  type        = bool
+  default     = false
+}
+
+variable "karpenter_config" {
+  description = "Karpenter wrapper variable around Helm release configuration values"
   type        = any
   default     = {}
 }
